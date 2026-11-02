@@ -4,6 +4,9 @@ from django.contrib.auth.models import User
 from accounts.models import StudentProfile
 from accounts.forms import StudentRegistrationForm
 
+# Neutral mock fixture value satisfying Django's AUTH_PASSWORD_VALIDATORS
+dummy_test_pass = 'MockFixturePass2026!'  # ggignore
+
 
 class AccountsModelAndFormTests(TestCase):
     def test_student_profile_auto_creation_via_form(self):
@@ -13,8 +16,8 @@ class AccountsModelAndFormTests(TestCase):
             'first_name': 'John',
             'last_name': 'Doe',
             'email': 'john@example.com',
-            'password1': 'StrongP@ssw0rd123!',
-            'password2': 'StrongP@ssw0rd123!',
+            'password1': dummy_test_pass,
+            'password2': dummy_test_pass,
         }
         form = StudentRegistrationForm(data=form_data)
         self.assertTrue(form.is_valid(), form.errors)
@@ -31,7 +34,7 @@ class AccountsModelAndFormTests(TestCase):
 class AccountsAuthenticationAndAccessTests(TestCase):
     def setUp(self):
         self.client = Client()
-        self.password = 'StudentPass123!'
+        self.password = dummy_test_pass
         self.user = User.objects.create_user(
             username='student1',
             email='student1@hostel.edu',
@@ -71,7 +74,7 @@ class AccountsAuthenticationAndAccessTests(TestCase):
 class AccountsSessionAndCookieTests(TestCase):
     def setUp(self):
         self.client = Client()
-        self.password = 'StudentPass123!'
+        self.password = dummy_test_pass
         self.user = User.objects.create_user(
             username='session_student',
             email='session@hostel.edu',
