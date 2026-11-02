@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}My Swap Requests | HostelSwap{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h2>My Room Swap Requests</h2>
+        <p style="color: var(--text-muted);">
+            Current Room: 
+            {% if profile.current_room %}
+                <strong>{{ profile.current_room.block.name }} - Room {{ profile.current_room.room_number }}</strong>
+            {% else %}
+                <em>Not Allocated</em>
+            {% endif %}
+        </p>
+    </div>
+    <div>
+        <a href="{% url 'swaps:create' %}" class="btn">+ Request New Swap</a>
+        <a href="{% url 'swaps:matches' %}" class="btn btn-secondary" style="margin-left: 0.5rem;">View Swap Matches</a>
+    </div>
+</div>
+
+<!-- Outgoing Swap Requests Table -->
+<div class="card">
+    <h3>Outgoing Requests (Rooms You Want to Move Into)</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Target Room</th>
+                <th>Hostel Block</th>
+                <th>Current Status</th>
+                <th>Submitted On</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for swap in outgoing_swaps %}
+                <tr>
+                    <td>#{{ swap.id }}</td>
+                    <td><strong>Room {{ swap.target_room.room_number }}</strong></td>
+                    <td>{{ swap.target_room.block.name }}</td>
+                    <td>
+                        {% if swap.status == 'PENDING' %}
+                            <span class="badge badge-warning">Pending</span>
+                        {% elif swap.status == 'COMPLETED' or swap.status == 'APPROVED' %}
+                            <span class="badge badge-success">{{ swap.status }}</span>
+                        {% else %}
+                            <span class="badge badge-danger">{{ swap.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ swap.created_at|date:"M d, Y H:i" }}</td>
+                    <td>
+                        {% if swap.status == 'PENDING' %}
+                            <!-- Safe POST-only cancellation form with CSRF token (Unit IV) -->
+                            <form method="post" action="{% url 'swaps:cancel' swap.id %}" style="display: inline;" onsubmit="return confirm('Cancel this swap request?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn" style="background-color: var(--danger); padding: 0.25rem 0.6rem; font-size: 0.8rem;">
+                                    Cancel
+                                </button>
+                            </form>
+                        {% else %}
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
+                        You have not submitted any room swap requests yet.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Incoming Swap Requests Table -->
+<div class="card">
+    <h3>Incoming Requests (Students Requesting Your Room)</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Requester</th>
+                <th>Requester's Current Room</th>
+                <th>Status</th>
+                <th>Date Received</th>
+                <th>Matching</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for swap in incoming_swaps %}
+                <tr>
+                    <td>#{{ swap.id }}</td>
+                    <td><strong>{{ swap.requester.user.username }}</strong></td>
+                    <td>
+                        {% if swap.requester.current_room %}
+                            {{ swap.requester.current_room.block.name }} - Room {{ swap.requester.current_room.room_number }}
+                        {% else %}
+                            <em>Unallocated</em>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if swap.status == 'PENDING' %}
+                            <span class="badge badge-warning">Pending</span>
+                        {% elif swap.status == 'COMPLETED' or swap.status == 'APPROVED' %}
+                            <span class="badge badge-success">{{ swap.status }}</span>
+                        {% else %}
+                            <span class="badge badge-danger">{{ swap.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ swap.created_at|date:"M d, Y H:i" }}</td>
+                    <td>
+                        <a href="{% url 'swaps:matches' %}" style="font-size: 0.85rem; color: var(--primary);">
+                            Check Mutual Match &rarr;
+                        </a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
+                        No other students have requested a swap into your room yet.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

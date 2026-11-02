@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Hostel Room Exchange &amp; Swap Platform{% endblock %}</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--surface);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0.85rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 1.25rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.15s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-user {
+            background-color: #eff6ff;
+            color: var(--primary);
+            padding: 0.35rem 0.75rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .btn-link {
+            border: none;
+            background: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            color: var(--danger);
+        }
+
+        main {
+            max-width: 1200px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            flex: 1;
+        }
+
+        /* Message Banners */
+        .messages-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .alert {
+            padding: 0.85rem 1.25rem;
+            border-radius: var(--radius);
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+            border: 1px solid transparent;
+        }
+
+        .alert-success { background-color: #dcfce7; color: #166534; border-color: #bbf7d0; }
+        .alert-info { background-color: #e0f2fe; color: #075985; border-color: #bae6fd; }
+        .alert-warning { background-color: #fef3c7; color: #92400e; border-color: #fde68a; }
+        .alert-error, .alert-danger { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; }
+
+        /* Card, Tables, and Form UI */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: #ffffff;
+            padding: 0.55rem 1.1rem;
+            border-radius: var(--radius);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 9999px;
+            text-transform: uppercase;
+        }
+
+        .badge-success { background-color: #dcfce7; color: #15803d; }
+        .badge-danger { background-color: #fee2e2; color: #b91c1c; }
+        .badge-warning { background-color: #fef3c7; color: #b45309; }
+        .badge-info { background-color: #e0e7ff; color: #4338ca; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            padding: 0.85rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        footer {
+            background-color: var(--surface);
+            border-top: 1px solid var(--border);
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <a href="{% url 'rooms:room_list' %}" class="nav-brand">
+                <span>🏢</span> HostelSwap Platform
+            </a>
+            <ul class="nav-links">
+                <li><a href="{% url 'rooms:room_list' %}">Browse Rooms</a></li>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'accounts:dashboard' %}">Dashboard</a></li>
+                    <li><a href="{% url 'swaps:create' %}">Request Swap</a></li>
+                    <li><a href="{% url 'swaps:list' %}">My Swaps</a></li>
+                    <li><a href="{% url 'swaps:matches' %}">Swap Matches</a></li>
+                    <li class="nav-user">{{ user.username }}</li>
+                    <li><a href="{% url 'accounts:logout' %}" class="btn-link">Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'accounts:login' %}">Login</a></li>
+                    <li><a href="{% url 'accounts:register' %}" class="btn">Register</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% if messages %}
+            <div class="messages-container">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2026 P04 Hostel Room Exchange and Multi-Party Swap Platform. Built with Django 5.</p>
+    </footer>
+
+    {% block scripts %}
+    {% endblock %}
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Dashboard</title>
+</head>
+<body>
+    <h2>Welcome, {{ profile.user.get_full_name|default:profile.user.username }}!</h2>
+    <p><a href="{% url 'accounts:logout' %}">Log Out</a></p>
+
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <h3>Allocated Room</h3>
+    {% if assigned_room %}
+        <p>Block: {{ assigned_room.block.name }} | Room Number: {{ assigned_room.room_number }} (Capacity: {{ assigned_room.capacity }})</p>
+    {% else %}
+        <p>No room currently allocated.</p>
+    {% endif %}
+
+    <h3>Pending Swap Requests</h3>
+    {% if pending_swaps %}
+        <ul>
+            {% for swap in pending_swaps %}
+                <li>Request to Room {{ swap.target_room.room_number }} ({{ swap.target_room.block.name }}) - Status: {{ swap.status }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No pending swap requests.</p>
+    {% endif %}
+
+    <hr>
+    <h3>Session &amp; Cookie Diagnostics (Unit VI)</h3>
+    <p>Session Account Visits Counter: <strong>{{ account_visits }}</strong></p>
+    <p>Session Last Activity: <strong>{{ last_activity }}</strong></p>
+    <p>Cookie 'preferred_block': <strong>{{ preferred_block_cookie }}</strong></p>
+    <p>Session 'preferred_block': <strong>{{ preferred_block_session }}</strong></p>
+
+    <h4>Set Cookie Preference:</h4>
+    <p>
+        <a href="{% url 'accounts:set_preference' %}?preferred_block=Block-A">Set Cookie: Block-A</a> |
+        <a href="{% url 'accounts:set_preference' %}?preferred_block=Block-B">Set Cookie: Block-B</a> |
+        <a href="{% url 'accounts:set_preference' %}?preferred_block=Block-C">Set Cookie: Block-C</a>
+    </p>
+</body>
+</html>

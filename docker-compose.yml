@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: hostel_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: hostel_db
+      POSTGRES_USER: hostel_user
+      POSTGRES_PASSWORD: hostel_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    container_name: hostel_web
+    restart: unless-stopped
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1
+      - DB_NAME=hostel_db
+      - DB_USER=hostel_user
+      - DB_PASSWORD=hostel_password
+      - DB_HOST=db
+      - DB_PORT=5432
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

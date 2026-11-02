@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block title %}Room {{ room.room_number }} - {{ room.block.name }} | HostelSwap{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1.5rem;">
+    <a href="{% url 'rooms:room_list' %}" style="text-decoration: none; color: var(--primary); font-weight: 500;">
+        &larr; Back to Room Directory
+    </a>
+</div>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2>Room {{ room.room_number }}</h2>
+            <p style="color: var(--text-muted); font-size: 1.05rem; margin-top: 0.25rem;">
+                Hostel Block: <strong>{{ room.block.name }}</strong>
+            </p>
+        </div>
+        <div>
+            {% if room.occupants.count == 0 %}
+                <span class="badge badge-success" style="font-size: 0.9rem; padding: 0.4rem 0.8rem;">Vacant (All Spots Open)</span>
+            {% elif is_full %}
+                <span class="badge badge-danger" style="font-size: 0.9rem; padding: 0.4rem 0.8rem;">Fully Occupied</span>
+            {% else %}
+                <span class="badge badge-warning" style="font-size: 0.9rem; padding: 0.4rem 0.8rem;">{{ available_spots }} Spot{{ available_spots|pluralize }} Available</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid var(--border);">
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+        <div>
+            <h4 style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase;">Gender Policy</h4>
+            <p style="font-size: 1.1rem; font-weight: 600; margin-top: 0.25rem;">
+                {{ room.block.get_gender_restriction_display|upper|default:"CO-ED" }}
+            </p>
+        </div>
+        <div>
+            <h4 style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase;">Total Capacity</h4>
+            <p style="font-size: 1.1rem; font-weight: 600; margin-top: 0.25rem;">
+                {{ room.capacity }} Student{{ room.capacity|pluralize }}
+            </p>
+        </div>
+        <div>
+            <h4 style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase;">Current Occupants</h4>
+            <p style="font-size: 1.1rem; font-weight: 600; margin-top: 0.25rem;">
+                {{ occupants|length }} / {{ room.capacity }}
+            </p>
+        </div>
+        <div>
+            <h4 style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase;">Regex URL Route</h4>
+            <p style="font-size: 0.9rem; margin-top: 0.25rem;">
+                <a href="{% url 'rooms:regex_search' block_code=room.block.name room_num=room.room_number %}">
+                    <code>/rooms/block/{{ room.block.name }}/{{ room.room_number }}/</code>
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Current Occupants Section -->
+<div class="card">
+    <h3>Current Occupants ({{ occupants|length }})</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Full Name</th>
+                <th>Contact Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for occupant in occupants %}
+                <tr>
+                    <td><strong>{{ occupant.user.username }}</strong></td>
+                    <td>{{ occupant.user.get_full_name|default:"Not Provided" }}</td>
+                    <td>{{ occupant.user.email|default:"No email recorded" }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
+                        This room currently has no registered student occupants.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Incoming Swap Requests Section -->
+<div class="card">
+    <h3>Incoming Swap Requests ({{ incoming_swaps|length }})</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Request ID</th>
+                <th>Requester</th>
+                <th>Current Room</th>
+                <th>Status</th>
+                <th>Submitted On</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for swap in incoming_swaps %}
+                <tr>
+                    <td>#{{ swap.id }}</td>
+                    <td>{{ swap.requester.user.username }}</td>
+                    <td>
+                        {% if swap.requester.current_room %}
+                            {{ swap.requester.current_room.block.name }} - {{ swap.requester.current_room.room_number }}
+                        {% else %}
+                            <em>Unallocated</em>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if swap.status == 'PENDING' %}
+                            <span class="badge badge-warning">Pending</span>
+                        {% elif swap.status == 'APPROVED' or swap.status == 'COMPLETED' %}
+                            <span class="badge badge-success">{{ swap.status }}</span>
+                        {% else %}
+                            <span class="badge badge-danger">{{ swap.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ swap.created_at|date:"M d, Y H:i" }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
+                        No swap requests targeting this room yet.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

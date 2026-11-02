@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}404 - Page Not Found | HostelSwap{% endblock %}
+
+{% block content %}
+<div class="card" style="text-align: center; padding: 3rem 1.5rem; max-width: 650px; margin: 3rem auto;">
+    <h1 style="font-size: 4rem; color: var(--danger); margin-bottom: 0.5rem;">404</h1>
+    <h2 style="margin-bottom: 1rem;">Room or Resource Not Found</h2>
+    <p style="color: var(--text-muted); margin-bottom: 2rem;">
+        The hostel block, room allocation, or route you requested could not be located on the server.
+    </p>
+    <div>
+        <a href="{% url 'rooms:room_list' %}" class="btn">Return to Room Browser</a>
+        <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary" style="margin-left: 0.5rem;">Go to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

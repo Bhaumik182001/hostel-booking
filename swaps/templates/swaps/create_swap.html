@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Request Room Swap | HostelSwap{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 650px; margin: 0 auto;">
+    <h2>Request a Room Swap</h2>
+    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+        Currently Allocated Room: 
+        <strong>{{ current_room.block.name }} - Room {{ current_room.room_number }}</strong>
+        <span class="badge badge-info">{{ current_room.block.get_gender_restriction_display|upper }}</span>
+    </p>
+
+    <!-- Non-field validation errors (Unit IV) -->
+    {% if form.non_field_errors %}
+        <div class="alert alert-error">
+            {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'swaps:create' %}">
+        {% csrf_token %}
+
+        <div style="margin-bottom: 1.5rem;">
+            <label for="{{ form.target_room.id_for_label }}" style="display: block; font-weight: 600; margin-bottom: 0.5rem;">
+                Select Desired Target Room:
+            </label>
+            {{ form.target_room }}
+
+            <!-- Field-level validation errors (Unit IV) -->
+            {% if form.target_room.errors %}
+                <div style="color: var(--danger); font-size: 0.85rem; margin-top: 0.4rem;">
+                    {% for error in form.target_room.errors %}
+                        <p>&bull; {{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <small style="color: var(--text-muted); display: block; margin-top: 0.4rem;">
+                Only rooms in gender-compatible blocks are permissible for exchange.
+            </small>
+        </div>
+
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <button type="submit" class="btn">Submit Swap Request</button>
+            <a href="{% url 'swaps:list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

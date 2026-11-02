@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Hostel Rooms | HostelSwap{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2>Hostel Room Directory</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">
+                Showing {{ total_rooms_count }} registered room{{ total_rooms_count|pluralize }}.
+            </p>
+        </div>
+        <div>
+            <span style="font-size: 0.85rem; color: var(--text-muted);">
+                Regex Route Demo: <code>/rooms/block/&lt;block_code&gt;/&lt;room_num&gt;/</code>
+            </span>
+        </div>
+    </div>
+
+    <!-- Filter Form (Unit II GET Request Processing) -->
+    <form method="get" action="{% url 'rooms:room_list' %}" style="display: flex; gap: 1rem; margin-top: 1.25rem; flex-wrap: wrap; align-items: flex-end;">
+        <div>
+            <label for="block" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem;">Filter by Block</label>
+            <input type="text" id="block" name="block" value="{{ selected_block|default:'' }}" placeholder="e.g. Block A" style="padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius);">
+        </div>
+        <div>
+            <label for="capacity" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem;">Capacity</label>
+            <input type="number" id="capacity" name="capacity" min="1" max="10" value="{{ selected_capacity|default:'' }}" placeholder="Any" style="padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius); width: 100px;">
+        </div>
+        <div>
+            <button type="submit" class="btn">Filter</button>
+            {% if selected_block or selected_capacity %}
+                <a href="{% url 'rooms:room_list' %}" class="btn btn-secondary" style="margin-left: 0.25rem;">Reset</a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Room Inventory Listing (Unit III DTL Tags & Filters) -->
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Room #</th>
+                <th>Hostel Block</th>
+                <th>Gender Policy</th>
+                <th>Capacity</th>
+                <th>Occupancy</th>
+                <th>Availability</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for room in rooms %}
+                <tr>
+                    <td><strong>{{ room.room_number }}</strong></td>
+                    <td>{{ room.block.name }}</td>
+                    <td><span class="badge badge-info">{{ room.block.get_gender_restriction_display|upper }}</span></td>
+                    <td>{{ room.capacity }} Person{{ room.capacity|pluralize }}</td>
+                    <td>{{ room.occupants.count }} / {{ room.capacity }}</td>
+                    <td>
+                        {% if room.occupants.count == 0 %}
+                            <span class="badge badge-success">Vacant</span>
+                        {% elif room.occupants.count < room.capacity %}
+                            <span class="badge badge-warning">Partial</span>
+                        {% else %}
+                            <span class="badge badge-danger">Full</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'rooms:room_detail' room.id %}" class="btn" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;">Details</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                        No rooms match the selected criteria.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

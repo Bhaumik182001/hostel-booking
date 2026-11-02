@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}Swap Matches &amp; Circular Chains | HostelSwap{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <h2>Automated Swap Matching Engine</h2>
+    <p style="color: var(--text-muted);">
+        Detecting direct 1-to-1 pairwise swaps and multi-party circular cycles ($A \to B \to C \to A$).
+    </p>
+</div>
+
+<!-- Section 1: 1-to-1 Pairwise Matches -->
+<div style="margin-bottom: 2.5rem;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+        <h3>Direct Pairwise Matches (1-to-1 Reciprocal Swaps)</h3>
+        <span class="badge badge-info">{{ pairwise_matches|length }} Match{{ pairwise_matches|length|pluralize:"es" }} Found</span>
+    </div>
+
+    {% for pair in pairwise_matches %}
+        <div class="card" style="border-left: 4px solid var(--primary); margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+                    <div style="text-align: center; background: #eff6ff; padding: 0.75rem 1.25rem; border-radius: var(--radius);">
+                        <strong>{{ pair.student_a.user.username }}</strong>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">
+                            In: {{ pair.room_a.block.name }} - {{ pair.room_a.room_number }}
+                        </div>
+                    </div>
+
+                    <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary);">
+                        &harr;
+                    </div>
+
+                    <div style="text-align: center; background: #eff6ff; padding: 0.75rem 1.25rem; border-radius: var(--radius);">
+                        <strong>{{ pair.student_b.user.username }}</strong>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">
+                            In: {{ pair.room_b.block.name }} - {{ pair.room_b.room_number }}
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    {% if pair.involves_user or user.is_staff %}
+                        <form method="post" action="{% url 'swaps:execute' pair.req_a.id %}" onsubmit="return confirm('Execute this room swap reallocating both students?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn" style="background-color: var(--success);">
+                                &#10004; Execute Pairwise Swap
+                            </button>
+                        </form>
+                    {% else %}
+                        <span class="badge badge-secondary" style="background: #e2e8f0; color: #475569;">Warden / Participant Only</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="card" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+            No direct reciprocal 1-to-1 matches found at this time.
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Section 2: Multi-Party Circular Swap Chains (3-Party Cycles) -->
+<div style="margin-bottom: 2rem;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+        <h3>Multi-Party Circular Swap Chains (3-Party Cycles)</h3>
+        <span class="badge badge-success">{{ circular_matches|length }} Cycle{{ circular_matches|length|pluralize:"s" }} Detected</span>
+    </div>
+
+    {% for cycle in circular_matches %}
+        <div class="card" style="border-left: 4px solid var(--success); margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                    <div style="background: #f0fdf4; padding: 0.75rem 1rem; border-radius: var(--radius); text-align: center;">
+                        <strong>{{ cycle.student_a.user.username }}</strong>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">
+                            From: {{ cycle.room_a.block.name }}-{{ cycle.room_a.room_number }}
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--success); font-weight: 600;">
+                            &rarr; To: {{ cycle.room_b.block.name }}-{{ cycle.room_b.room_number }}
+                        </div>
+                    </div>
+
+                    <div style="font-size: 1.25rem; font-weight: bold; color: var(--success);">&rarr;</div>
+
+                    <div style="background: #f0fdf4; padding: 0.75rem 1rem; border-radius: var(--radius); text-align: center;">
+                        <strong>{{ cycle.student_b.user.username }}</strong>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">
+                            From: {{ cycle.room_b.block.name }}-{{ cycle.room_b.room_number }}
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--success); font-weight: 600;">
+                            &rarr; To: {{ cycle.room_c.block.name }}-{{ cycle.room_c.room_number }}
+                        </div>
+                    </div>
+
+                    <div style="font-size: 1.25rem; font-weight: bold; color: var(--success);">&rarr;</div>
+
+                    <div style="background: #f0fdf4; padding: 0.75rem 1rem; border-radius: var(--radius); text-align: center;">
+                        <strong>{{ cycle.student_c.user.username }}</strong>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">
+                            From: {{ cycle.room_c.block.name }}-{{ cycle.room_c.room_number }}
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--success); font-weight: 600;">
+                            &rarr; To: {{ cycle.room_a.block.name }}-{{ cycle.room_a.room_number }}
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    {% if cycle.involves_user or user.is_staff %}
+                        <form method="post" action="{% url 'swaps:execute' cycle.req_ab.id %}" onsubmit="return confirm('Atomically execute this 3-party circular swap? All 3 students will be simultaneously reallocated.');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn" style="background-color: var(--success);">
+                                &#10004; Execute 3-Party Cycle
+                            </button>
+                        </form>
+                    {% else %}
+                        <span class="badge badge-secondary" style="background: #e2e8f0; color: #475569;">Warden / Participant Only</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="card" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+            No 3-party circular swap cycles detected among currently active pending requests.
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

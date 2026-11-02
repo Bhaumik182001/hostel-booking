@@ -1,0 +1,38 @@
+# Environment & Secrets
+.env
+*.env
+!.env.example
+*.pem
+*.key
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+id_*
+
+# Python & Caching
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+env/
+venv/
+.venv/
+
+# Django Artifacts
+*.log
+local_settings.py
+db.sqlite3
+*.sqlite3-journal
+staticfiles/
+media/
+
+# Docker host volume mounts & persistent data
+postgres_data/
+postgres_prod_data/
+
+# OS metadata
+.DS_Store
+Thumbs.db
